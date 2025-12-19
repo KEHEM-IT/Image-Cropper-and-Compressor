@@ -3,7 +3,7 @@
   "displayName": "Image Cropper & Compressor",
   "description": "Crop images with custom dimensions and compression",
   "version": "1.0.0",
-  "publisher": "KEHEM-IT",
+  "publisher": "KEHEMIT",
   "engines": {
     "vscode": "^1.80.0"
   },
