@@ -1,0 +1,76 @@
+{
+  "name": "image-cropper",
+  "displayName": "Image Cropper & Compressor",
+  "description": "Crop images with custom dimensions and compression",
+  "version": "1.0.0",
+  "publisher": "KEHEM-IT",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "image",
+    "crop",
+    "compression",
+    "image compress",
+    "image-crop",
+    "image-cropper",
+    "web-development",
+    "frontend"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/KEHEM-IT/Image-Cropper-and-Compressor.git"
+  },
+  "homepage": "https://github.com/KEHEM-IT/Image-Cropper-and-Compressor",
+  "bugs": {
+    "url": "https://github.com/KEHEM-IT/Image-Cropper-and-Compressor/issues"
+  },
+  "license": "MIT",
+  "icon": "images/logo.png",
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "image-cropper.cropImage",
+        "title": "Open with Image Cropper & Compressor",
+        "icon": "images/logo.png"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "when": "resourceExtname =~ /\\.(png|jpg|jpeg|gif|bmp|webp)$/i",
+          "command": "image-cropper.cropImage",
+          "group": "navigation"
+        }
+      ],
+      "editor/title": [
+        {
+          "when": "resourceExtname =~ /\\.(png|jpg|jpeg|gif|bmp|webp)$/i",
+          "command": "image-cropper.cropImage",
+          "group": "navigation",
+          "icon": "$(scissors)"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "sharp": "^0.32.0"
+  }
+}
