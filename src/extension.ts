@@ -50,9 +50,26 @@ export function activate(context: vscode.ExtensionContext) {
 
         panel.webview.html = getWebviewContent(imageUri.toString(), path.basename(imagePath));
 
+        panel.onDidChangeViewState(
+            e => {
+                const p = e.webviewPanel; 
+                
+                if (p.active) {
+                    p.webview.html = getWebviewContent(imageUri.toString(), path.basename(imagePath));
+                }
+            },
+            undefined,
+            context.subscriptions
+        );
+
         panel.webview.onDidReceiveMessage(
             async message => {
                 switch (message.command) {
+                    case 'update': 
+                        const config = vscode.workspace.getConfiguration('image-cropper');
+                        config.update('ratioSelect', message.data.ratioSelect);
+                        config.update('ratioWidthHeight', message.data.ratioWidthHeight);
+                        break;
                     case 'save':
                         await saveImage(imagePath, message.data, false);
                         break;
@@ -126,6 +143,7 @@ async function saveImage(originalPath: string, data: any, saveAs: boolean) {
 }
 
 function getWebviewContent(imageUri: string, imageName: string): string {
+    const config = vscode.workspace.getConfiguration('image-cropper');
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -314,9 +332,10 @@ function getWebviewContent(imageUri: string, imageName: string): string {
         };
         img.src = '${imageUri}';
 
-        // Ratio selection
-        document.getElementById('ratioSelect').addEventListener('change', (e) => {
-            const val = e.target.value;
+
+        function updateRatioSelect() {
+            sendUpdate();
+            const val = document.getElementById('ratioSelect').value;
             const customGroup = document.getElementById('customRatioGroup');
             
             if (val === 'custom') {
@@ -332,7 +351,9 @@ function getWebviewContent(imageUri: string, imageName: string): string {
                 }
             }
             updateSelection();
-        });
+        }
+        // Ratio selection
+        document.getElementById('ratioSelect').addEventListener('change', updateRatioSelect);
 
         document.getElementById('ratioW').addEventListener('input', updateAspectRatio);
         document.getElementById('ratioH').addEventListener('input', updateAspectRatio);
@@ -343,6 +364,7 @@ function getWebviewContent(imageUri: string, imageName: string): string {
             if (w > 0 && h > 0) {
                 aspectRatio = w / h;
             }
+            sendUpdate();
         }
 
         // Width/Height inputs
@@ -690,6 +712,41 @@ function getWebviewContent(imageUri: string, imageName: string): string {
                 return;
             }
             sendCropData('saveAs');
+        }
+
+        function applyData() {
+            const data = {
+                ratioSelect: "${config.get('ratioSelect')}", 
+                ratioWidthHeight: "${config.get('ratioWidthHeight')}"
+            }    
+            document.getElementById('ratioSelect').value = data.ratioSelect;
+            updateRatioSelect();
+
+            if (data.ratioSelect === 'custom') {
+                const ratioW = data.ratioWidthHeight.split('/')[0];
+                const ratioH = data.ratioWidthHeight.split('/')[1];
+                document.getElementById('ratioW').value = ratioW;
+                document.getElementById('ratioH').value = ratioH;
+            }
+
+            
+            updateAspectRatio();
+
+
+        }
+        applyData();
+
+        function sendUpdate() {
+            const ratioSelect = document.getElementById('ratioSelect').value;
+            const ratioW = document.getElementById('ratioW').value || "0"
+            const ratioH = document.getElementById('ratioH').value || "0"
+            vscode.postMessage({
+                command: 'update',
+                data: {
+                    ratioSelect: ratioSelect,
+                    ratioWidthHeight: ratioW + '/' + ratioH
+                }
+            });
         }
 
         function sendCropData(command) {

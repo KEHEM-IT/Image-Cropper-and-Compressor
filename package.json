@@ -34,6 +34,18 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "properties": {
+        "image-cropper.ratioSelect": {
+          "type": "string",
+          "default": "free"
+        },
+        "image-cropper.ratioWidthHeight": {
+          "type": "string",
+          "default": "0/0"
+        }
+      }
+    },
     "commands": [
       {
         "command": "image-cropper.cropImage",
